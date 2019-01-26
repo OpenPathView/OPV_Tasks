@@ -68,7 +68,7 @@ class FindnearestcpTask(Task):
         """
         return [cp for cp in lot.cps if cp.stichable]
 
-    def searchNearestLocatedCp(self, lot, max_distance=30):  # TODO test
+    def searchNearestLocatedCp(self, lot, max_distance=250): 
         """
         Search nearest stitchable cps.
 
@@ -79,7 +79,7 @@ class FindnearestcpTask(Task):
         nearest_cps = []
         nearestSensors = self._client_requestor.make_all(ressources.Sensors,
                                                          filters=(Filter.within([lot.sensors.id_sensors,
-                                                                  lot.sensors.id_malette], 30)))
+                                                                  lot.sensors.id_malette], max_distance)))
         self.logger.debug(nearestSensors)
         nearestSensorsWithDistance = []
 
@@ -114,7 +114,7 @@ class FindnearestcpTask(Task):
 
         return nearest_cps
 
-    def searchNearestByLotId(self, lot, max_id_number=10):  # TODO test
+    def searchNearestByLotId(self, lot, max_id_number=500):
         """
         Search 'nearest' stitchable cps, thoses associated whith id_lot between : lot.id_lot - max_id_number / lot.id_lot + max_id_number
 
@@ -148,7 +148,8 @@ class FindnearestcpTask(Task):
 
         # get nearest geolocated lots
         self.logger.debug("Searching nearest lot by geoloc :")
-        cps = self.searchNearestLocatedCp(lot=lot)
+        max_distance = options["max_distance"] if "max_distance" in options else 250  # Default is 250 meters
+        cps = self.searchNearestLocatedCp(lot=lot, max_distance=max_distance)
 
         # filtering cps, to keep stitchable ones
         cps = [cp for cp in cps if cp.stichable]
