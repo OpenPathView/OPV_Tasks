@@ -68,7 +68,7 @@ class FindnearestcpTask(Task):
         """
         return [cp for cp in lot.cps if cp.stichable]
 
-    def searchNearestLocatedCp(self, lot, max_distance=250): 
+    def searchNearestLocatedCp(self, lot, max_distance=250):
         """
         Search nearest stitchable cps.
 
