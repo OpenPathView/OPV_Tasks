@@ -40,7 +40,7 @@ depthmap_min_consistent_views: 2      # Min number of views that should reconstr
 
             with self._opv_directory_manager.Open(pano.equirectangular_path) as (name, dir_path):
                 pano_path = Path(dir_path) / "panorama.jpg"
-                pano_path.link(self.osfm_images_dir / "{}.jpg".format(pano.id_panorama))
+                pano_path.link(self.osfm_images_dir / "{}-{}.jpg".format(pano.id_panorama, pano.id_malette))
                 size = self.getPictureSizes(pano_path)
                 pano_exif["width"] = size[0]
                 pano_exif["height"] = size[1]
@@ -68,7 +68,7 @@ depthmap_min_consistent_views: 2      # Min number of views that should reconstr
             camera_models[pano_exif["camera"]]["height"] = pano_exif["height"]
             camera_models[pano_exif["camera"]]["projection_type"] = pano_exif["projection_type"]
 
-            with open(self.osfm_exif_dir / "{}.jpg.exif".format(pano.id_panorama), "w+") as f:
+            with open(self.osfm_exif_dir / "{}-{}.jpg.exif".format(pano.id_panorama, pano.id_malette), "w+") as f:
                 json.dump(pano_exif, f, indent=4)
 
         with open(self.osfm_dir / "config.yaml", "w+") as conf:
