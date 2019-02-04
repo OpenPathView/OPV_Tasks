@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+import os
 import json
 import logging
 from docopt import docopt
@@ -15,13 +18,21 @@ Usage:
 
 Options:
     -h --help                Show help.
-    --db-rest=<str>          API rest server [default: http://opv_master:5000]
-    --dir-manager=<str>      API for directory manager [default: http://opv_master:5005]
+    --db-rest=<str>          API rest server [default: http://{}:{}]
+    --dir-manager=<str>      API for directory manager [default: http://{}:{}]
     --debug                  Debug mode.
 
 Sub commands/tasks are :
 
-""" + "\n\n".join([generateHelp(taskName) for taskName in tasks])
+%s
+""".format(
+    str(os.getenv("OPV_TASKS_DBREST_ADDRESS", "opv_master")),
+    str(os.getenv("OPV_TASKS_DBREST_PORT", 5000)),
+    str(os.getenv("OPV_TASKS_DIRMANAGER_ADDRESS", "opv_master")),
+    str(os.getenv("OPV_TASKS_DIRMANAGER_PORT", 5005)),
+    str("\n\n".join([generateHelp(taskName) for taskName in tasks]))
+)
+
 
 def main():
     """Main function."""
@@ -59,6 +70,7 @@ def main():
 
         if not lastTaskReturn.isSuccess():
             logger.error("Last task executed failed with following error : " + lastTaskReturn.error)
+
 
 def run(dm_c, db_c, task_name, inputData):
     """

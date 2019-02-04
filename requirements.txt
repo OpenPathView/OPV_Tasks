@@ -5,3 +5,12 @@ docopt==0.6.2
 Pillow==4.0.0
 python-xmp-toolkit==2.0.1
 numpy
+certifi
+chardet
+ftputil
+geojson
+idna
+olefile
+pytz
+requests
+urllib3
