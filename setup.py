@@ -37,7 +37,8 @@ setup(
                       "python-xmp-toolkit",
                       "opv_api_client",
                       "opv_directorymanagerclient",
-                      "atrevrix-graphe"
+                      "atrevrix-graphe",
+                      "opencv-python"
                       ],
     # Active la prise en compte du fichier MANIFEST.in
     include_package_data=True,
