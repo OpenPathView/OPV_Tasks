@@ -4,13 +4,13 @@ import cv2
 from path import Path
 
 
-class FinderrorTask(Task):
+class DetectholeTask(Task):
     """
         Find panorama assembly error
         Input format :
-            opv-task finderror '{"id_panorama": ID_PANORAMA, "id_malette": ID_MALETTE }'
+            opv-task detecthole '{"id_panorama": ID_PANORAMA, "id_malette": ID_MALETTE }'
     """
-    TASK_NAME = "finderror"
+    TASK_NAME = "detecthole"
     requiredArgsKeys = ["id_malette", "id_panorama"]
 
     MIN_AREA = 3
@@ -22,7 +22,7 @@ class FinderrorTask(Task):
         # Convert each black pixel in white and other pixel in black
         panorama_img = cv2.threshold(self.panorama_img, 0, 255, cv2.THRESH_BINARY_INV)[1]
         # Find contour around white shape
-        contours, hierarchy = cv2.findContours(panorama_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        contours = cv2.findContours(panorama_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]
         hole = []
 
         for contour in contours:
@@ -43,16 +43,6 @@ class FinderrorTask(Task):
             else:
                 return 0
 
-    def detectBlur(self):
-        self.logger.info("Blur test")
-        variance = cv2.Laplacian(self.panorama_img, cv2.CV_64F).var()
-
-        if variance <= self.THRESHOLD:
-            self.logger.info("Panorama is blurry (laplacian variance : {})".format(variance))
-            return 1
-        else:
-            return 0
-
     def runWithExceptions(self, options={}):
         self.checkArgs(options)
         self.pano = self._client_requestor.make(ressources.Panorama, options["id_panorama"], options["id_malette"])
@@ -64,9 +54,14 @@ class FinderrorTask(Task):
             self.panorama_img = cv2.cvtColor(self.panorama_img, cv2.COLOR_BGR2GRAY)
 
             error = self.detectHole()
-            error += self.detectBlur()
 
         if error:
             self.logger.info("This panorama has problem(s)")
+            self.pano.is_blur = True
         else: 
             self.logger.info("This panorama seem good")
+            self.pano.is_blur = False
+
+        self.pano.save()
+
+        return self.pano.id
