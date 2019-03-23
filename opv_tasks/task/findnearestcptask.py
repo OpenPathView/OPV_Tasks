@@ -99,7 +99,7 @@ class FindnearestcpTask(Task):
         self.logger.debug("-- Filtering --")
         for sensorWithDistance in nearestSensorsWithDistance:
             s = sensorWithDistance[1]
-            if not(s.lot.id_lot == lot.id_lot and s.lot.id_malette == lot.id_malette):
+            if s.lot and not(s.lot.id_lot == lot.id_lot and s.lot.id_malette == lot.id_malette):
                 nearestSensorsWithDistanceFiltered.append(sensorWithDistance)
 
         self.logger.debug(nearestSensorsWithDistanceFiltered)
