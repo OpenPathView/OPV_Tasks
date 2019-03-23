@@ -12,10 +12,10 @@ class OsfmsaveTask(Task):
     """
         Save osfm data
         Input format :
-            opv-task osfmsave '{"osfm_dir": OSFM_DIR, "id_malette": ID_MALETTE }'
+            opv-task osfmsave '{"osfm_dir": OSFM_DIR}'
     """
     TASK_NAME = "osfmsave"
-    requiredArgsKeys = ["id_malette", "osfm_dir"]
+    requiredArgsKeys = ["osfm_dir"]
 
     def angleToNorthSigned(self, camVect):
         """
@@ -42,7 +42,8 @@ class OsfmsaveTask(Task):
             for reconstruction in self.reconstructions:
                 for pano in reconstruction["shots"]:
                     data = reconstruction["shots"][pano]
-                    pano = int(pano.split(".")[0])
+                    pano = pano.split(".")[0].split("-")
+                    
                     self.logger.info("Panorama {} had been treat by opensfm".format(pano))
                     corrected_sensors = self._client_requestor.make(ressources.Sensors)
                     optical_center = self.reconstructionUtils.opticalCenter(data)
@@ -60,11 +61,15 @@ class OsfmsaveTask(Task):
                     camVect = [orientation[i] for i in range(2)]
                     north_offset = degrees(self.angleToNorthSigned(camVect))
 
+                    corrected_sensors.panorama = {}
+                    corrected_sensors.panorama["id_panorama"] = pano[0]
+                    corrected_sensors.panorama["id_malette"] = pano[1]
+
                     corrected_sensors.degrees = int(north_offset)
                     corrected_sensors.minutes = int((north_offset - int(north_offset)) * 60)
                     corrected_sensors.create()
 
-                    pano = self._client_requestor.make(ressources.Panorama, pano, self.id_malette)
+                    pano = self._client_requestor.make(ressources.Panorama, pano[0], pano[1])
                     pano.sensors_reconstructed["id_sensors"] = corrected_sensors.id_sensors
                     pano.sensors_reconstructed["id_malette"] = corrected_sensors.id_malette
                     pano.save()
@@ -75,7 +80,6 @@ class OsfmsaveTask(Task):
         """
         self.checkArgs(options)
         self.reconstructionUtils = ReconstructionUtils()
-        self.id_malette = options["id_malette"]
 
         self.dir = Path(options["osfm_dir"])
 
