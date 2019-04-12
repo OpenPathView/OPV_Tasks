@@ -1,4 +1,4 @@
-FROM hugin
+FROM opv-hugin
 
 RUN apt-get update && apt-get install -y libpq-dev python3-dev imagemagick && rm -rf /var/lib/apt/lists/*
 
@@ -14,5 +14,9 @@ WORKDIR /source/OPV_Tasks
 RUN pip3 install -r requirements.txt && \
 python3 setup.py install
 
+WORKDIR /
+
 CMD ["/bin/bash"]
+
+RUN rm -rf /source/OPV_Tasks
 
